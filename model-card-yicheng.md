@@ -4,6 +4,8 @@
 {{ card_data }}
 ---
 
+[Monthly Data track](https://docs.google.com/spreadsheets/d/1h-XOwoo0j8yyUnCtUFVTH2C4Ep8eSjISmqHu2hRg6hw/edit?gid=0#gid=0), every 10th of each month.
+
 # Model Card for {{ model_id | default("Model ID", true) }}
 
 <!-- Provide a quick summary of what the model is/does. -->
