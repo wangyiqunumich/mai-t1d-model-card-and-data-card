@@ -6,28 +6,33 @@
 
 [Monthly Data track](https://docs.google.com/spreadsheets/d/1h-XOwoo0j8yyUnCtUFVTH2C4Ep8eSjISmqHu2hRg6hw/edit?gid=0#gid=0), every 10th of each month.
 
-# Model Card for {{ model_id | default("Model ID", true) }}
+# Model Card for Genomic Foundation Model
 
-<!-- Provide a quick summary of what the model is/does. -->
+This genomic foundation model is a transformer-based predictive framework designed for efficient large-scale genomic modeling. It integrates whole genome sequence (WGS) and chromatin accessibility profiles (ATAC-seq) to predict the expression levels of 19,264 protein-coding genes measured by RNA-seq. 
 
-{{ model_summary | default("", true) }}
+The architecture incorporates FlashAttention and linear attention mechanisms to enable scalable long-context modeling across genomic regions. Post-hoc interpretability analyses are applied to infer relationships among genetic variants, regulatory elements, and downstream transcriptomic outputs.
 
 ## Model Details
 
 ### Model Description
 
-<!-- Provide a longer summary of what this model is. -->
+This model is a multi-modal genomic foundation model that jointly models DNA sequence and chromatin accessibility to predict transcriptomic outputs at the gene level. The architecture is based on a transformer backbone optimized for long genomic contexts using FlashAttention and linear attention mechanisms to reduce memory and computational overhead.
 
-{{ model_description | default("", true) }}
+The model takes as input:
+- Whole genome sequence (WGS)
+- ATAC-seq chromatin accessibility signals
 
-- **Developed by:** {{ developers | default("[More Information Needed]", true)}}
+The model is trained using supervised regression objectives to learn sequence-to-expression mappings while integrating epigenomic regulatory information. Following prediction, post-hoc interpretation methods such as attention analysis, gradient-based attribution, and perturbation analysis are used to characterize relationships between genetic variants, regulatory regions, and gene expression.
+
+This framework is intended for large-scale regulatory modeling, variant effect inference, and mechanistic exploration of genome-to-transcriptome relationships.
+
+- **Developed by:** Liu Lab from University of Michigan
 - **Funded by [optional]:** {{ funded_by | default("[More Information Needed]", true)}}
-- **Shared by [optional]:** {{ shared_by | default("[More Information Needed]", true)}}
-- **Model type:** {{ model_type | default("[More Information Needed]", true)}}
-- **Language(s) (NLP):** {{ language | default("[More Information Needed]", true)}}
-- **License:** {{ license | default("[More Information Needed]", true)}}
-- **Finetuned from model [optional]:** {{ base_model | default("[More Information Needed]", true)}}
-
+- **Shared by [optional]:** Xin Luo
+- **Model type:** Transformer-based multi-modal genomic predictive model
+- **Language(s):** Genomic sequence
+- **License:** Apache 2.0
+- **Finetuned from model [optional]:** Not determined yet.
 ### Model Sources [optional]
 
 <!-- Provide the basic links for the model. -->
@@ -38,19 +43,22 @@
 
 ## Uses
 
-<!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
+This model is intended for research use in computational genomics and regulatory biology. It enables large-scale modeling of genome-to-transcriptome relationships by integrating DNA sequence and chromatin accessibility signals.
 
 ### Direct Use
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
-
-{{ direct_use | default("[More Information Needed]", true)}}
+- Predicting RNA-seq gene expression levels from WGS and ATAC-seq inputs
+- Modeling regulatory effects of genetic variants on transcript values
+- Studying interactions between regulatory elements and target genes
+- Variant effect prediction in non-coding regions
 
 ### Downstream Use [optional]
 
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
+The model can be fine-tuned or adapted for:
 
-{{ downstream_use | default("[More Information Needed]", true)}}
+- Disease-associated variant prioritization
+- Regulatory element annotation
+- Expression quantitative trait locus (eQTL) modeling
 
 ### Out-of-Scope Use
 
