@@ -6,27 +6,22 @@
 
 [Monthly Data track](https://docs.google.com/spreadsheets/d/1h-XOwoo0j8yyUnCtUFVTH2C4Ep8eSjISmqHu2hRg6hw/edit?gid=0#gid=0), every 10th of each month.
 
-# Model Card for {{ model_id | default("Model ID", true) }}
+# Model Card for Single Cell Model
 
-<!-- Provide a quick summary of what the model is/does. -->
-
-{{ model_summary | default("", true) }}
+MultiOmicsCLIP is a contrastive learning model that aligns single-cell RNA-seq and ATAC-seq data from the same cells into a shared embedding space. It enables cross-modal retrieval, clustering, and batch correction across genomic modalities.
 
 ## Model Details
 
 ### Model Description
 
-<!-- Provide a longer summary of what this model is. -->
-
-{{ model_description | default("", true) }}
-
-- **Developed by:** {{ developers | default("[More Information Needed]", true)}}
+The model uses a CLIP-style contrastive objective to align paired scRNA-seq and scATAC-seq profiles from the same cell into a shared 512-dimensional embedding space. The RNA branch is powered by scFoundation, and the ATAC branch by EpiAgent. Both pretrained encoders feed into lightweight MLP projection heads that are fine-tuned with contrastive learning on paired 10x Multiome data.
+- **Developed by:** Xinyu Bao
 - **Funded by [optional]:** {{ funded_by | default("[More Information Needed]", true)}}
 - **Shared by [optional]:** {{ shared_by | default("[More Information Needed]", true)}}
-- **Model type:** {{ model_type | default("[More Information Needed]", true)}}
+- **Model type:** Contrastive multimodal encoder (CLIP-style)
 - **Language(s) (NLP):** {{ language | default("[More Information Needed]", true)}}
 - **License:** {{ license | default("[More Information Needed]", true)}}
-- **Finetuned from model [optional]:** {{ base_model | default("[More Information Needed]", true)}}
+- **Finetuned from model [optional]:** scFoundation (RNA, Nature Methods 2024), EpiAgent (ATAC, Nature Methods 2025)
 
 ### Model Sources [optional]
 
@@ -42,9 +37,11 @@
 
 ### Direct Use
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
-
-{{ direct_use | default("[More Information Needed]", true)}}
+  Given paired scRNA-seq and scATAC-seq data (10x Multiome or computationally paired), use the model to:
+  - Embed cells from either modality into a shared 512-dim L2-normalized space
+  - Retrieve matched cells across modalities (cross-modal retrieval)
+  - Cluster cells in the joint embedding space
+  - Evaluate modality alignment quality (retrieval accuracy, LISI, ARI)
 
 ### Downstream Use [optional]
 
