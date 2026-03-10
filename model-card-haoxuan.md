@@ -9,26 +9,64 @@
 
 # Model Card for {{ model_id | default("Model ID", true) }}
 
-<!-- Provide a quick summary of what the model is/does. -->
+This model is an encoder-only Transformer for learning protein (ADT) representations from protein data. It supports:
 
-{{ model_summary | default("", true) }}
+Structured Masked Value Prediction for protein-value reconstruction under random masking and panel dropout (simulated missing-marker panels)
+
+Supervised cell-type classification from a learned cell embedding (CLS token / pooled embedding)
 
 ## Model Details
 
 ### Model Description
 
-<!-- Provide a longer summary of what this model is. -->
+**Inputs (per cell):**
 
-{{ model_description | default("", true) }}
+* ADT count vector across **163 proteins** (CITE-seq antibody-derived tags)
+* Optional donor/batch metadata used for dataset splitting (donor-level split during evaluation)
 
-- **Developed by:** {{ developers | default("[More Information Needed]", true)}}
-- **Funded by [optional]:** {{ funded_by | default("[More Information Needed]", true)}}
-- **Shared by [optional]:** {{ shared_by | default("[More Information Needed]", true)}}
-- **Model type:** {{ model_type | default("[More Information Needed]", true)}}
-- **Language(s) (NLP):** {{ language | default("[More Information Needed]", true)}}
-- **License:** {{ license | default("[More Information Needed]", true)}}
-- **Finetuned from model [optional]:** {{ base_model | default("[More Information Needed]", true)}}
+**Preprocessing:**
 
+* Per-cell **CLR** transformation on ADT counts:
+
+  * `x = log1p(count)`
+  * `x = x - mean(x over proteins)`
+
+**Tokenization / Representation:**
+
+* Each protein is treated as a **token** (sequence length = number of proteins; + optional `[CLS]`)
+* Hyper-token embedding components (Stage-0):
+
+  * `E_protein(id)` (learned protein identity embedding)
+  * `E_value(v)` (continuous value encoder on CLR values; implemented as an MLP in current version)
+  * `E_mod(CITE)` (single modality embedding placeholder; for future multi-modality expansion)
+  * (Optional) donor/batch embedding exists in the design, but **its use requires care** because embeddings may become donor-dominated; current benchmarks therefore report donor effects explicitly.
+
+**Backbone:**
+
+* Encoder-only Transformer
+
+**Outputs:**
+
+* **Cell embedding** (CLS token or pooled embedding) for downstream use
+* **SMVP head**: predicts masked protein values (regression)
+* **Classification head**: predicts cell-type label (cross-entropy)
+
+**Objectives:**
+
+* `L = L_smvp + λ * L_cls`
+
+  * `L_smvp`: masked-value regression loss (weighted MSE over masked tokens)
+  * `L_cls`: supervised cell-type classification loss
+
+* **Developed by:** Liu Lab, University of Michigan (TODO: confirm exact lab naming)
+
+* **Shared by:** Haoxuan Zeng
+
+* **Model type:** Protein (ADT) encoder-only Transformer for single-cell representation learning
+
+* **License:** Apache 2.0 (TODO: confirm)
+* 
+* **Finetuned from model:** Not applicable / trained from scratch (Stage-0)
 ### Model Sources [optional]
 
 <!-- Provide the basic links for the model. -->
@@ -43,15 +81,23 @@
 
 ### Direct Use
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
+This model is intended for **research use** on ADT data.
 
-{{ direct_use | default("[More Information Needed]", true)}}
+Typical direct uses:
+
+* **Cell embedding extraction** for clustering, visualization (UMAP), retrieval, and downstream ML
+* **Cell-type classification** (supervised head provided)
+* **Protein imputation / panel completion** under random masking and simulated panel dropout
+
 
 ### Downstream Use [optional]
 
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
+Potential downstream uses:
 
-{{ downstream_use | default("[More Information Needed]", true)}}
+* Cross-panel harmonization (different antibody panels)
+* Cross-modality alignment (ADT ↔ RNA/ATAC/IMC/CODEX/flow) using shared anchors
+* Donor-level phenotype prediction via pooled cell embeddings
+* Clone-aware modeling when paired with TCR/BCR (if available in dataset)
 
 ### Out-of-Scope Use
 
