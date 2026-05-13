@@ -88,13 +88,34 @@ Use the code below to get started with the model.
 
 ### Training Data
 
-<!-- This should link to a Dataset Card, perhaps with a short stub of information on what the training data is all about as well as documentation related to data pre-processing or additional filtering. -->
+The model was trained on matched chromatin accessibility, reference genome and RNA expression data from HPAP donor-derived cell/tissue samples. Training samples include alpha, beta, and exocrine cell/tissue profiles.
 
-{{ training_data | default("[More Information Needed]", true)}}
+Training samples:
+
+- `HPAP_004_beta`
+- `HPAP_006_alpha`
+- `HPAP_008_alpha`
+- `HPAP_009_alpha`
+- `HPAP_012_alpha`
+- `HPAP_017_alpha`
+- `HPAP_019_alpha`
+- `HPAP_019_beta`
+- `HPAP_022_alpha`
+- `HPAP_022_beta`
+- `HPAP_040_alpha`
+- `HPAP_047_beta`
+- `HPAP_072_alpha`
+- `HPAP_077_beta`
+- `HPAP_063_exocrine`
 
 ### Training Procedure
 
-<!-- This relates heavily to the Technical Specifications. Content here should link to that section when it is relevant to the training procedure. -->
+The model was trained using distributed data-parallel training with three processes. The training procedure takes preprocessed RNA expression data and preprocessed chromatin accessibility data as input. ATAC-seq-derived chromatin features are encoded by the local encoder, and the downstream prediction module learns to predict gene-level RNA expression values.
+
+The model was initialized from a previous checkpoint:
+
+```bash
+/nfs/turbo/umms-drjieliu/usr/xinyubao/clipEPCOT/models/tss_ddp_6000_ddp/best_ddp.ckpt
 
 #### Preprocessing [optional]
 
@@ -103,7 +124,21 @@ Use the code below to get started with the model.
 
 #### Training Hyperparameters
 
-- **Training regime:** {{ training_regime | default("[More Information Needed]", true)}} <!--fp32, fp16 mixed precision, bf16 mixed precision, bf16 non-mixed precision, fp16 non-mixed precision, fp8 mixed precision -->
+- **Training regime:** Distributed data-parallel training with `torchrun`; numerical precision was not explicitly specified in the provided command.
+- **Number of processes:** 3
+- **Batch size:** 1
+- **Epochs:** 10
+- **Learning rate:** 1e-5
+- **Weight decay:** 1e-3
+- **Number of workers:** 4
+- **Held-out chromosomes:** 10, 21
+- **Chromatin loading chunk size:** 2000
+- **Gradient accumulation genes:** 2000
+- **Maximum genes per batch:** 16000
+- **Gene chunk size:** 6
+- **Number of TSS bins:** 2
+- **Resume checkpoint:** `/nfs/turbo/umms-drjieliu/usr/xinyubao/clipEPCOT/models/tss_ddp_6000_ddp/best_ddp.ckpt`
+- **Training tag:** `tss_ddp_alpha_beta_exo`
 
 #### Speeds, Sizes, Times [optional]
 
@@ -113,7 +148,18 @@ Use the code below to get started with the model.
 
 ## Evaluation
 
-<!-- This section describes the evaluation protocols and provides the results. -->
+Validation samples:
+
+- `HPAP_051_alpha`
+- `HPAP_051_beta`
+- `HPAP_052_alpha`
+- `HPAP_052_beta`
+- `HPAP_054_alpha`
+- `HPAP_066_exocrine`
+- `HPAP_069_alpha`
+- `HPAP_077_alpha`
+
+Pearson Correlation Coefficient is used to evaluate the predicted gene expressions.
 
 ### Testing Data, Factors & Metrics
 
@@ -165,7 +211,19 @@ Carbon emissions can be estimated using the [Machine Learning Impact calculator]
 
 ### Model Architecture and Objective
 
-{{ model_specs | default("[More Information Needed]", true)}}
+The model is designed to predict gene expression from chromatin accessibility signals plus DNA sequence. It takes ATAC-seq–derived genomic features as input and uses a local encoder to extract regulatory representations around transcription start sites. The encoded features are then passed to the downstream prediction module to estimate gene-level RNA expression.
+
+<p align="center">
+  <img src="xin_model.png" alt="Overall model architecture" width="850">
+</p>
+
+The local encoder is based on an ATAC-CNN module, which learns local chromatin accessibility patterns from genomic bins and produces feature embeddings for downstream prediction.
+
+<p align="center">
+  <img src="model_ataccnn.png" alt="Local ATAC-CNN encoder structure" width="700">
+</p>
+
+The training objective is to minimize the prediction error between the model-predicted gene expression values and the observed RNA expression values. During evaluation, model performance can be assessed using correlation-based metrics such as Pearson or Spearman correlation between predicted and observed gene expression profiles.
 
 ### Compute Infrastructure
 
@@ -203,8 +261,8 @@ Carbon emissions can be estimated using the [Machine Learning Impact calculator]
 
 ## Model Card Authors [optional]
 
-{{ model_card_authors | default("[More Information Needed]", true)}}
+Xin Luo
 
 ## Model Card Contact
 
-{{ model_card_contact | default("[More Information Needed]", true)}}
+luosanj@umich.edu
