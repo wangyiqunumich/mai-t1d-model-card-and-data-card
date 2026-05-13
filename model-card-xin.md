@@ -116,6 +116,7 @@ The model was initialized from a previous checkpoint:
 
 ```bash
 /nfs/turbo/umms-drjieliu/usr/xinyubao/clipEPCOT/models/tss_ddp_6000_ddp/best_ddp.ckpt
+```
 
 #### Preprocessing [optional]
 
